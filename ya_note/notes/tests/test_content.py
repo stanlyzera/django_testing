@@ -39,10 +39,10 @@ class TestContent(TestCase):
         for note in self.notes:
             self.assertTrue(
                 any(
-                    obj.title == note.title and
-                    obj.text == note.text and
-                    obj.author == note.author and
-                    obj.slug == note.slug
+                    obj.title == note.title
+                    and obj.text == note.text
+                    and obj.author == note.author
+                    and obj.slug == note.slug
                     for obj in object_list
                 )
             )
