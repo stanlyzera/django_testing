@@ -64,8 +64,8 @@ def comments_data(author, news):
 @pytest.fixture
 def admin_comment(admin_user, news):
     comment = Comment.objects.create(
-            news=news, author=admin_user, text='ТекстТт',
-        )
+        news=news, author=admin_user, text='ТекстТт',
+    )
     return comment
 
 
