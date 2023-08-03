@@ -31,7 +31,7 @@ def test_user_cant_create_comment_with_badword(author_client, news):
 @pytest.mark.django_db
 def test_auth_can_edit_comment(
     admin_client, form_comment, admin_comment, id_admin_comment
-     ):
+):
     url = reverse('news:edit', args=(id_admin_comment))
     admin_client.post(url, form_comment)
     admin_comment.refresh_from_db()
@@ -41,7 +41,7 @@ def test_auth_can_edit_comment(
 @pytest.mark.django_db
 def test_auth_cant_edit_other_comment(
     author_client, form_comment, admin_comment, id_admin_comment
-     ):
+):
     url = reverse('news:edit', args=(id_admin_comment))
     author_client.post(url, form_comment)
     admin_comment.refresh_from_db()
