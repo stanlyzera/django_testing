@@ -1,10 +1,12 @@
-import pytest
 from datetime import datetime, timedelta
+
+from django.conf import settings
+from django.test import Client
+from django.utils import timezone
+import pytest
 
 from news.models import News, Comment
 
-from yanews import settings
-from django.utils import timezone
 
 now = timezone.now()
 
@@ -16,18 +18,18 @@ def author(django_user_model):
 
 @pytest.fixture
 def author_client(author, client):
-    client.force_login(author)
-    return client
+    author_client = Client()
+    author_client.force_login(author)
+    return author_client
 
 
 @pytest.fixture
 def news():
-    note = News.objects.create(
+    return News.objects.create(
         title='Заголовок',
         text='Текст заметки',
         date=now
     )
-    return note
 
 
 @pytest.fixture
@@ -38,19 +40,18 @@ def id_for_args(news):
 @pytest.fixture
 def ten_news():
     today = datetime.today()
-    a = News.objects.bulk_create(
+    return News.objects.bulk_create(
         News(title=f'Новость {index}',
              text='Просто текст.',
              date=today - timedelta(days=index))
         for index in range(settings.NEWS_COUNT_ON_HOME_PAGE + 1)
     )
-    return a
 
 
 @pytest.fixture
 def comments_data(author, news):
     comments = []
-    for index in range(2):
+    for index in range(3):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Текст {index}',
         )

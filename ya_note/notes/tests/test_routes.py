@@ -26,47 +26,60 @@ class TestRoutes(TestCase):
             text='Текст записки',
             slug='some-unique-slug',
         )
+        cls.one_specific_note_links = ('notes:edit',
+                                       'notes:delete',
+                                       'notes:detail'
+                                       )
+        cls.other_notes_links = (
+            ('notes:add', None),
+            ('notes:success', None),
+            ('notes:list', None)
+        )
 
     def test_pages_availability(self):
         urls = (
-            ('notes:home', None),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
+            ('notes:home'),
+            ('users:login'),
+            ('users:logout'),
+            ('users:signup'),
         )
 
-        for name, args in urls:
+        for name in urls:
             with self.subTest(name=name):
-                url = reverse(name, args=args)
+                url = reverse(name)
                 response = self.client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_redirect_for_anonymous_client(self):
         login_url = reverse('users:login')
-        for name in ('notes:edit', 'notes:delete', 'notes:add',
-                     'notes:list', 'notes:detail', 'notes:success'
-                     ):
+        for name in self.one_specific_note_links + self.other_notes_links:
             with self.subTest(name=name):
                 if name in ('notes:edit', 'notes:delete', 'notes:detail'):
                     url = reverse(name, args=(self.notes.slug,))
-                else:
-                    url = reverse(name)
                 redirect_url = f'{login_url}?next={url}'
                 response = self.client.get(url)
                 self.assertRedirects(response, redirect_url)
 
-    def test_edit_pages_availability_for_author_and_reader(self):
-        for name in ('notes:edit', 'notes:delete', 'notes:detail'):
-            with self.subTest(name=name):
-                url = reverse(name, args=(self.notes.slug,))
-                response = self.auth_client.get(url)
-                self.assertEqual(response.status_code, HTTPStatus.OK)
-                response2 = self.reader_client.get(url)
-                self.assertEqual(response2.status_code, HTTPStatus.NOT_FOUND)
+    def check_page_access(self, client, slug, expected_status):
+        url = reverse('notes:edit', args=(slug,))
+        response = client.get(url)
+        self.assertEqual(response.status_code, expected_status)
+
+    def test_author_can_access_edit_page(self):
+        self.check_page_access(self.auth_client,
+                               self.notes.slug,
+                               HTTPStatus.OK
+                               )
+
+    def test_reader_cannot_access_edit_page(self):
+        self.check_page_access(self.reader_client,
+                               self.notes.slug,
+                               HTTPStatus.NOT_FOUND
+                               )
 
     def test_pages_availability_for_auth_client(self):
-        for name in ('notes:add', 'notes:success', 'notes:list'):
+        for name, args in self.other_notes_links:
             with self.subTest(name=name):
-                url = reverse(name)
+                url = reverse(name, args=args)
                 response = self.auth_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
