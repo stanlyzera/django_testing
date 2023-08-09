@@ -28,8 +28,7 @@ class TestRoutes(TestCase):
         )
         cls.one_specific_note_links = ('notes:edit',
                                        'notes:delete',
-                                       'notes:detail'
-                                       )
+                                       'notes:detail')
         cls.other_notes_links = (
             ('notes:add', None),
             ('notes:success', None),
@@ -54,7 +53,7 @@ class TestRoutes(TestCase):
         login_url = reverse('users:login')
         for name in self.one_specific_note_links + self.other_notes_links:
             with self.subTest(name=name):
-                if name in ('notes:edit', 'notes:delete', 'notes:detail'):
+                if name in self.one_specific_note_links:
                     url = reverse(name, args=(self.notes.slug,))
                 redirect_url = f'{login_url}?next={url}'
                 response = self.client.get(url)
@@ -68,14 +67,12 @@ class TestRoutes(TestCase):
     def test_author_can_access_edit_page(self):
         self.check_page_access(self.auth_client,
                                self.notes.slug,
-                               HTTPStatus.OK
-                               )
+                               HTTPStatus.OK)
 
     def test_reader_cannot_access_edit_page(self):
         self.check_page_access(self.reader_client,
                                self.notes.slug,
-                               HTTPStatus.NOT_FOUND
-                               )
+                               HTTPStatus.NOT_FOUND)
 
     def test_pages_availability_for_auth_client(self):
         for name, args in self.other_notes_links:

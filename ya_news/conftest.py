@@ -1,14 +1,11 @@
 from datetime import datetime, timedelta
 
+import pytest
 from django.conf import settings
 from django.test import Client
 from django.utils import timezone
-import pytest
 
 from news.models import News, Comment
-
-
-now = timezone.now()
 
 
 @pytest.fixture
@@ -28,7 +25,7 @@ def news():
     return News.objects.create(
         title='Заголовок',
         text='Текст заметки',
-        date=now
+        date=timezone.now()
     )
 
 
@@ -55,7 +52,7 @@ def comments_data(author, news):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Текст {index}',
         )
-        comment.created = now + timedelta(days=index)
+        comment.created = timezone.now() + timedelta(days=index)
         comment.save()
         comments.append(comment)
 

@@ -1,5 +1,5 @@
-from http import HTTPStatus
 import pytils.translit
+from http import HTTPStatus
 
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase

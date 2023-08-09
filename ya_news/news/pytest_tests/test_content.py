@@ -1,10 +1,11 @@
 import re
 
+import pytest
 from django.conf import settings
 from django.urls import reverse
-import pytest
 
 from news.forms import CommentForm
+from news.models import Comment
 
 
 HOME_URL = reverse('news:home')
@@ -24,24 +25,11 @@ def test_comments_order(client, news, comments_data):
     response = client.get(reverse('news:detail', args=(news.id,)))
     assert 'news' in response.context
     news = response.context['news']
-    all_comments = news.comment_set.all()
-    reversed_comment_texts = [comment.text[:20]
-                              for comment in reversed(all_comments)
-                              ]
-    reversed_comment_list_pattern = re.compile(
-        r'\s*'.join(re.escape(text) for text in reversed_comment_texts)
-    )
+    all_comments = Comment.objects.filter(news=news).order_by('created')
+    comment_texts = [re.escape(comment.text[:20]) for comment in all_comments]
+    comment_list_pattern = re.compile(r'[\s\S]*?'.join(comment_texts))
     page_content = response.content.decode('utf-8')
-    assert re.search(reversed_comment_list_pattern, page_content)
-
-
-@pytest.mark.django_db
-def test_comments_order(client, news, comments_data):
-    response = client.get(reverse('news:detail', args=(news.id,)))
-    assert 'news' in response.context
-    news = response.context['news']
-    all_comments = news.comment_set.all()
-    assert all_comments[0].created < all_comments[1].created
+    assert re.search(comment_list_pattern, page_content)
 
 
 @pytest.mark.django_db

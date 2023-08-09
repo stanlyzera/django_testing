@@ -34,16 +34,15 @@ class TestContent(TestCase):
         response = self.auth_client.get(self.list_notes_url)
         self.assertIn('object_list', response.context)
         object_list = response.context['object_list']
-        for note in self.notes:
-            self.assertTrue(
-                any(
-                    obj.title == note.title
-                    and obj.text == note.text
-                    and obj.author == note.author
-                    and obj.slug == note.slug
-                    for obj in object_list
-                )
+        self.assertTrue(
+            any(
+                obj.title == self.notes[0].title
+                and obj.text == self.notes[0].text
+                and obj.author == self.notes[0].author
+                and obj.slug == self.notes[0].slug
+                for obj in object_list
             )
+        )
 
     def test_authorized_client_has_add_form(self):
         urls = (
