@@ -1,5 +1,5 @@
-from django.urls import reverse
 import pytest
+from django.urls import reverse
 from pytest_django.asserts import assertFormError
 
 from news.forms import BAD_WORDS, WARNING

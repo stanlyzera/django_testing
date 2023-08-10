@@ -29,20 +29,18 @@ class TestContent(TestCase):
         cls.other_note = Note.objects.create(
             title='title', text='t', author=cls.other_author
         )
+        cls.one_note = Note.objects.create(
+            title='Тестовая записка index',
+            text='Тестовый текст index',
+            author=cls.author,
+            slug='slug-index'
+        )
 
     def test_individual_note_in_context(self):
         response = self.auth_client.get(self.list_notes_url)
         self.assertIn('object_list', response.context)
         object_list = response.context['object_list']
-        self.assertTrue(
-            any(
-                obj.title == self.notes[0].title
-                and obj.text == self.notes[0].text
-                and obj.author == self.notes[0].author
-                and obj.slug == self.notes[0].slug
-                for obj in object_list
-            )
-        )
+        self.assertIn(self.one_note, object_list)
 
     def test_authorized_client_has_add_form(self):
         urls = (
